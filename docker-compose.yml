@@ -1,0 +1,24 @@
+services:
+    nginx:
+        build:
+            context: .
+            target: nginx
+        ports:
+            - "80:80"
+        depends_on:
+            - laravel
+        networks:
+            - app-network
+
+    laravel:
+        build:
+            context: .
+            target: laravel
+        volumes:
+            - ./web:/var/www/html
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
