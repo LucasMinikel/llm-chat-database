@@ -14,8 +14,15 @@ services:
         build:
             context: .
             target: laravel
-        volumes:
-            - ./web:/var/www/html
+        networks:
+            - app-network
+
+    flask:
+        build:
+            context: .
+            target: flask
+        ports:
+            - "5000:5000"
         networks:
             - app-network
 

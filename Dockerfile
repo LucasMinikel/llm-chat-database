@@ -16,3 +16,11 @@ FROM nginx:alpine AS nginx
 COPY ./infra/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=laravel /var/www/html/public /var/www/html/public
 EXPOSE 80
+
+FROM python:3.9-slim AS flask
+WORKDIR /app
+COPY ./flask/ .
+RUN pip install --no-cache-dir -r requirements.txt gunicorn
+EXPOSE 5000
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "main:app"]
+
