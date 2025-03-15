@@ -4,7 +4,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $response = Http::get('http://flask:5000/');
+    $flaskUrl = env('FLASK_SERVICE_URL', 'http://flask:5000');
+    $response = Http::get($flaskUrl);
     return view(
         'welcome',
         [

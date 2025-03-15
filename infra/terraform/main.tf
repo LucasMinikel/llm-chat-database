@@ -31,6 +31,10 @@ resource "google_cloud_run_service" "laravel_service" {
             port = 80
           }
         }
+        env {
+          name  = "FLASK_SERVICE_URL"
+          value = google_cloud_run_service.flask_service.status[0].url
+        }
       }
       containers {
         image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/laravel-api:latest"
@@ -41,6 +45,10 @@ resource "google_cloud_run_service" "laravel_service" {
             memory = "256Mi"
           }
         }
+        env {
+          name  = "FLASK_SERVICE_URL"
+          value = google_cloud_run_service.flask_service.status[0].url
+        }
       }
     }
   }
@@ -50,9 +58,39 @@ resource "google_cloud_run_service" "laravel_service" {
   }
 }
 
+resource "google_cloud_run_service" "flask_service" {
+  name     = "flask-service"
+  location = var.region
+  template {
+    spec {
+      containers {
+        image = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.app_repo.repository_id}/flask-service:latest"
+        name  = "flask"
+        resources {
+          limits = {
+            cpu    = "500m"
+            memory = "256Mi"
+          }
+        }
+        ports {
+          container_port = 5000
+          name           = "http1"
+        }
+      }
+    }
+  }
+}
+
 resource "google_cloud_run_service_iam_member" "laravel_public" {
   service  = google_cloud_run_service.laravel_service.name
   location = google_cloud_run_service.laravel_service.location
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+resource "google_cloud_run_service_iam_member" "flask_service_invoker" {
+  service  = google_cloud_run_service.flask_service.name
+  location = google_cloud_run_service.flask_service.location
   role     = "roles/run.invoker"
   member   = "allUsers"
 }

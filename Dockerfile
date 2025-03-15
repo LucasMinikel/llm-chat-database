@@ -1,7 +1,7 @@
 FROM composer:latest AS composer
 WORKDIR /app
 COPY ./web .
-RUN composer install --optimize-autoloader --no-dev
+RUN composer install --optimize-autoloader
 
 FROM php:8.4-fpm AS laravel
 WORKDIR /var/www/html
